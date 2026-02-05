@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\Admin;
 
 class Coba extends BaseController
 {
     public function index()
     {
-        return view('siswa/index');
+        return view('siswa');
     }
 
     public function siswa_detail($kelas)
