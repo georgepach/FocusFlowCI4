@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+use App\Model\ModelHalaman;
 
 // Pastikan meng-extend BaseController seperti di Controller lainnya
 class Halaman extends BaseController 
@@ -21,4 +22,19 @@ class Halaman extends BaseController
     {
         return "Ditulis di kategori: <b>Berita</b>, Penulis <b>Sugondo</b>";
     }
+
+    public function halaman_create(){
+        $halamanModel = new ModelHalaman();
+        if($this->request->getMethod() == 'post'){
+            $dataHalaman = [
+                'halaman_judul'=>$_POST['halaman_judul'],
+                'halaman_isi'=>$_POST['halaman_isi']
+            ];
+
+            $halamanModel->save($dataHalaman);
+        }
+        $data['title'] = "Memasukkan data baru ";
+        echo view("konten/halaman_create", $data);
+    }
+
 }
