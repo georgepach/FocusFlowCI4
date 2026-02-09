@@ -1,34 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title><?= $title; ?></title>
-</head>
-<body>
-    <h1><?= $title; ?></h1>
-    
-    <form action="/tasks/update/<?= $task['id']; ?>" method="post">
-        <?= csrf_field(); ?>
-        
-        <div>
-            <label>Judul Tugas:</label><br>
-            <input type="text" name="judul" value="<?= $task['judul']; ?>" required>
+<?= $this->extend('layout/main'); ?>
+
+<?= $this->section('content'); ?>
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-lg">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold mb-0 text-primary text-center">Update Fokus Anda</h5>
+            </div>
+            <div class="card-body p-4">
+                <form action="/tasks/update/<?= $task['id']; ?>" method="post">
+                    <?= csrf_field(); ?>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small">JUDUL TUGAS</label>
+                        <input type="text" name="judul" class="form-control form-control-lg border-2" value="<?= $task['judul']; ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small">DESKRIPSI</label>
+                        <textarea name="deskripsi" class="form-control border-2" rows="4"><?= $task['deskripsi']; ?></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small">STATUS PROGRES</label>
+                        <select name="status" class="form-select form-select-lg border-2">
+                            <option value="pending" <?= ($task['status'] == 'pending') ? 'selected' : ''; ?>>🕒 Masih Pending</option>
+                            <option value="completed" <?= ($task['status'] == 'completed') ? 'selected' : ''; ?>>✅ Sudah Selesai</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg shadow-sm">Simpan Perubahan</button>
+                        <a href="/tasks" class="btn btn-link text-muted">Batal & Kembali</a>
+                    </div>
+                </form>
+            </div>
         </div>
-        <br>
-        <div>
-            <label>Deskripsi:</label><br>
-            <textarea name="deskripsi" rows="5"><?= $task['deskripsi']; ?></textarea>
-        </div>
-        <br>
-        <div>
-            <label>Status:</label><br>
-            <select name="status">
-                <option value="pending" <?= ($task['status'] == 'pending') ? 'selected' : ''; ?>>Pending</option>
-                <option value="completed" <?= ($task['status'] == 'completed') ? 'selected' : ''; ?>>Completed</option>
-            </select>
-        </div>
-        <br>
-        <button type="submit">Simpan Perubahan</button>
-        <a href="/tasks">Batal</a>
-    </form>
-</body>
-</html>
+    </div>
+</div>
+<?= $this->endSection(); ?>

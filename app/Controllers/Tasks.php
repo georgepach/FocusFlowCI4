@@ -2,72 +2,73 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
-use App\Models\TaskModel;
-use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\TaskModel; // Pastikan model dipanggil
 
 class Tasks extends BaseController
 {
-    public function create(){
-        $data = [
-        'title' => 'Tambah Tugas Baru'
-    ];
-    return view('tasks/create', $data);
+    // --- LANGKAH 1: DAFTARKAN PROPERTI (PENTING!) ---
+    // Baris ini memberitahu PHP bahwa Class ini punya properti bernama $taskModel
+    protected $taskModel;
+
+    // --- LANGKAH 2: ISI PROPERTI DI CONSTRUCTOR ---
+    public function __construct()
+    {
+        // Baris ini mengisi properti tadi dengan "mesin" TaskModel
+        $this->taskModel = new TaskModel();
     }
 
     public function index()
     {
-        $model = new TaskModel();
+        // Sekarang $this->taskModel sudah dikenal di seluruh Class
+        $filterStatus = $this->request->getGet('status');
+        $totalData = $this->taskModel->findAll();
 
+        if($filterStatus){
+            $semua = $this->taskModel->where('status', $filterStatus)->findAll();
+        } else {
+            $semua = $totalData;
+        }
+        
         $data = [
-            'title' => 'Daftar Tugas',
-            'semua_tugas' => $model->findAll()
+            'title'           => 'Dashboard FocusFlow',
+            'semua_tugas'     => $semua,
+            'current_filter'  => $filterStatus,
+            'total_tugas'     => count($totalData),
+            'tugas_pending'   => count(array_filter($semua, fn($t) => $t['status'] == 'pending')),
+            'tugas_completed' => count(array_filter($semua, fn($t) => $t['status'] == 'completed')),
         ];
+
         return view('tasks/index', $data);
+    }
+
+
+
+    public function create()
+    {
+        $data = [
+            'title' => 'Tambah Tugas Baru'
+        ];
+        return view('tasks/create', $data);
     }
 
     public function store()
     {
-    $model = new \App\Models\TaskModel();
-
-    // Mengambil data dari form dan menyimpannya ke database
-    $model->save([
-        'judul'     => $this->request->getPost('judul'),
-        'deskripsi' => $this->request->getPost('deskripsi'),
-        'status'    => 'pending' // Default status untuk tugas baru
-    ]);
-
-    // Setelah simpan, arahkan kembali ke halaman daftar tugas
-    return redirect()->to('/tasks');
-    }
-
-    public function edit($id)
-    {
-        $model = new TaskModel();
-        
-        $data = [
-            'title' => 'Edit Tugas',
-            'task'  => $model->find($id) // Mencari 1 data spesifik berdasarkan ID
-        ];
-
-        if (empty($data['task'])) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Tugas tidak ditemukan: ' . $id);
-        }
-
-        return view('tasks/edit', $data);
-    }
-
-    public function update($id)
-    {
-        $model = new TaskModel();
-
-        // Memperbarui data berdasarkan ID
-        $model->update($id, [
+        $this->taskModel->save([
             'judul'     => $this->request->getPost('judul'),
             'deskripsi' => $this->request->getPost('deskripsi'),
-            'status'    => $this->request->getPost('status')
+            'status'    => 'pending'
         ]);
 
+        session()->setFlashdata('pesan', 'Tugas berhasil ditambahkan!');
         return redirect()->to('/tasks');
     }
+
+    public function complete($id){
+        $this->taskModel->update($id, [
+            'status' => 'completed'
+        ]);
+    session()->setFlashData('Satu Tugas sudah diselesaikan');
+    return redirect()->to('/tasks');    
+    }
+
 }
